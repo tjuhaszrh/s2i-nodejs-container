@@ -4,7 +4,7 @@ NodeJS 22 minimal container image
 This container image includes Node.JS 22 on top of a minimal base image for your Node.JS 22 applications. This image is designed to be used
 with the full-sized s2i-enabled Node.JS 22 image to build the application. The image can be used as a standalone s2i-enabled image as well,
 but compared to the full-sized Node.JS 22 image it will be missing many build-time dependencies.
-Users can choose between RHEL, CentOS and Fedora based images.
+Users can choose between RHEL, CentOS and Fedora-based images.
 The RHEL images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/),
 the CentOS Stream images are available in the [Quay.io](https://quay.io/organization/sclorg),
 and the Fedora images are available in [Quay.io](https://quay.io/organization/fedora).
@@ -21,8 +21,6 @@ Node.js is a platform built on Chrome's JavaScript runtime for easily building
 fast, scalable network applications. Node.js uses an event-driven, non-blocking I/O model
 that makes it lightweight and efficient, perfect for data-intensive real-time applications
 that run across distributed devices.
-
-See [the Red Hat Enterprise Linux Application Streams Life Cycle page](https://access.redhat.com/support/policy/updates/rhel-app-streams-life-cycle) for information about support for this particular stream.
 
 Usage in OpenShift
 ------------------
@@ -221,7 +219,7 @@ Application developers can use the following environment variables to configure 
        When specified (e.g.Specify `NODE_CMD="node server.js"`) the value of `NODE_CMD` is used to start the application instead of `npm start`.
 
 **`INIT_WRAPPER`**
-       When set to "true", the application is started via the `init-wrapper` script instead of using `npm start`, by looking for the presence of the files `server.js`, `index.js` or `main.js` in the order in which they are listed. In case of `NODE_CMD` environemnt variale is specified, then `init-wrapper` script will use the value of `NODE_CMD` to start your application.
+       When set to "true", the application is started via the `init-wrapper` script instead of using `npm start`, by looking for the presence of the files `server.js`, `index.js` or `main.js` in the order in which they are listed. In case of `NODE_CMD` environment variable is specified, then `init-wrapper` script will use the value of `NODE_CMD` to start your application.
 
 #### Additional variables used in the full-sized image
 
@@ -237,7 +235,7 @@ Application developers can use the following environment variables to configure 
 **`NPM_TOKEN`**
        Use authentication token for a custom NPM registry mirror
 
-One way to define a set of environment variables is to include them as key value pairs in your repo's `.s2i/environment` file.
+One way to define a set of environment variables is to include them as key-value pairs in your repo's `.s2i/environment` file.
 
 Example: DATABASE_USER=sampleUser
 
@@ -264,7 +262,7 @@ podman run --env DEV_MODE=true my-image-id
 
 To run the container in development mode with a debug port of 5454, run:
 ```
-$ podman run --env DEV_MODE=true DEBUG_PORT=5454 my-image-id
+$ podman run --env DEV_MODE=true --env DEBUG_PORT=5454 my-image-id
 ```
 
 To run the container in production mode, run:
@@ -277,7 +275,7 @@ By default, `DEV_MODE` is set to `false`, and `DEBUG_PORT` is set to `5858`, how
 Hot deploy
 ----------
 
-As part of development mode, this image supports hot deploy. If development mode is enabled, any souce code that is changed in the running container will be immediately reflected in the running nodejs application.
+As part of development mode, this image supports hot deploy. If development mode is enabled, any source code that is changed in the running container will be immediately reflected in the running nodejs application.
 
 ### Using Podman's exec
 
@@ -303,7 +301,7 @@ Below is an example _package.json_ file with the _main_ attribute and _start_ sc
     "name": "node-echo",
     "version": "0.0.1",
     "description": "node-echo",
-    "main": "example.js", <--- main attribute
+    "main": "example.js",
     "dependencies": {
     },
     "devDependencies": {
@@ -315,12 +313,12 @@ Below is an example _package.json_ file with the _main_ attribute and _start_ sc
     },
     "scripts": {
         "dev": "nodemon --ignore node_modules/ server.js",
-        "start": "node server.js" <-- start script
+        "start": "node server.js"
     },
     "keywords": [
         "Echo"
     ],
-    "license": "",
+    "license": ""
 }
 ```
 
@@ -335,7 +333,7 @@ init-wrapper script is located on `/usr/libexec/s2i/init-wrapper` and is used to
 - Reaping zombie child processes
 Avoiding use of npm, there is more information on why you want to avoid that in the [Node.js reference architecture](https://github.com/nodeshift/nodejs-reference-architecture/blob/e4c4dc1fd20c2cac392e862859aaad27f85d504f/docs/development/building-good-containers.md#avoiding-using-npm-to-start-application). When the INIT_WRAPPER is set to true the application is started via the init script instead of using npm start.
 
-A detailed explanation on how the init-wrapper script works is avalable in
+A detailed explanation on how the init-wrapper script works is available in
 [this url](http://veithen.io/2014/11/16/sigterm-propagation.html).
 
 Example of using init-wrapper:
@@ -366,12 +364,12 @@ s2i -e INIT_WRAPPER=true -e NODE_CMD="node index.js" build . buildImage  node-ap
 ```
 **during container start**
 ```
-docker run -e INIT_WRAPPER=false -e NODE_CMD="node index.js" node-app
+docker run -e INIT_WRAPPER=true -e NODE_CMD="node index.js" node-app
 ```
 See also
 --------
 Dockerfile and other sources are available on https://github.com/sclorg/s2i-nodejs-container.
-In that repository you also can find another versions of Node.js environment Dockerfiles.
+In that repository you also can find other versions of Node.js environment Dockerfiles.
 Dockerfile for CentOS Stream 9 is called `Dockerfile.c9s`,
 Dockerfile for CentOS Stream 10 is called `Dockerfile.c10s`,
 for RHEL8 it's `Dockerfile.rhel8`, for RHEL9 it's `Dockerfile.rhel9`,
