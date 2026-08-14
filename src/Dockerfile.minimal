@@ -1,4 +1,4 @@
-FROM quay.io/sclorg/s2i-core-c8s
+FROM {{ spec.s2i_minimal_base }}{% if not ":" in spec.s2i_minimal_base %}:latest{% endif %}
 
 EXPOSE 8080
 
@@ -16,9 +16,8 @@ ENV APP_ROOT=/opt/app-root \
     # The $HOME is not set by default, but some applications need this variable
     HOME=/opt/app-root/src \
     NPM_RUN=start \
-    PLATFORM="el8" \
-    NODEJS_VERSION=20 \
-    NPM_RUN=start \
+    PLATFORM="{{ spec.org }}" \
+    NODEJS_VERSION={{ spec.version }} \
     NAME=nodejs
 
 ENV SUMMARY="Minimal image for running Node.js $NODEJS_VERSION applications" \
@@ -34,7 +33,7 @@ that run across distributed devices." \
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="Node.js $NODEJS_VERSION Minimal" \
+      io.k8s.display-name="Node.js $NODEJS_VERSION Micro" \
       io.openshift.expose-services="8080:http" \
       io.openshift.tags="builder,$NAME,${NAME}${NODEJS_VERSION}" \
       io.openshift.s2i.scripts-url="image:///usr/libexec/s2i" \
@@ -42,20 +41,32 @@ LABEL summary="$SUMMARY" \
       com.redhat.dev-mode="DEV_MODE:false" \
       com.redhat.deployments-dir="${APP_ROOT}/src" \
       com.redhat.dev-mode.port="DEBUG_PORT:5858" \
-      com.redhat.component="${NAME}-${NODEJS_VERSION}-minimal-container" \
-      name="sclorg/$NAME-$NODEJS_VERSION-minimal-c8s" \
+      com.redhat.component="{{ spec.redhat_component }}-minimal" \
+      name="{{ spec.img_name_minimal }}" \
       version="1" \
+      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>" \
       help="For more information visit https://github.com/sclorg/s2i-nodejs-container"
 
 # nodejs-full-i18n is included for error strings
-RUN INSTALL_PKGS="nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which" && \
-    yum -y module disable nodejs && \
-    yum -y module enable nodejs:$NODEJS_VERSION && \
-    yum -y --nodocs --setopt=install_weak_deps=0 install $INSTALL_PKGS && \
+RUN INSTALL_PKGS="{{ spec.minimal_pkgs }}" && \
+{% if spec.uses_dnf_modules %}\
+    # Legacy RHEL8/9 and CentOS Stream 9: use deprecated DNF modules
+    {% if spec.pkg_manager | default("dnf") == "microdnf" %}microdnf{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} -y module disable nodejs && \
+    {% if spec.pkg_manager | default("dnf") == "microdnf" %}microdnf{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} -y module enable nodejs:$NODEJS_VERSION && \
+{% else %}\
+    # Modern distros (Fedora, RHEL10+, CentOS Stream 10+): use versioned packages
+{% endif %}\
+    {% if spec.pkg_manager | default("dnf") == "microdnf" %}microdnf{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} -y --nodocs {% if spec.pkg_manager | default("dnf") == "microdnf" %}--setopt=install_weak_deps=0{% else %}--setopt=tsflags=nodocs{% endif %} install $INSTALL_PKGS && \
+{% if spec.needs_versioned_links %}\
+    rm -f /usr/bin/node && ln -s /usr/bin/node-$NODEJS_VERSION /usr/bin/node && \
+    rm -f /usr/bin/npm && ln -s /usr/bin/npm-$NODEJS_VERSION /usr/bin/npm && \
+    rm -f /usr/bin/npx && ln -s /usr/bin/npx-$NODEJS_VERSION /usr/bin/npx && \
+{% endif %}\
     node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" && \
-    yum clean all && \
-    rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
+{% if spec.post_install %}    {{ spec.post_install }}
+{% endif %}    {% if spec.pkg_manager | default("dnf") == "microdnf" %}microdnf{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} clean all{% if spec.pkg_manager | default("dnf") != "microdnf" %} --enablerepo='*'{% endif %}{% if spec.pkg_manager | default("dnf") == "microdnf" %} && \
+    rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*{% endif %}
 
 COPY ./s2i/bin/ /usr/libexec/s2i
 RUN chmod +x /usr/libexec/s2i/init-wrapper
@@ -64,6 +75,8 @@ RUN chmod +x /usr/libexec/s2i/init-wrapper
 COPY ./root/ /
 
 # Drop the root user and make the content of /opt/app-root owned by user 1001
-RUN mkdir -p "$HOME" && chown -R 1001:0 "$APP_ROOT" && chmod -R ug+rwx "$APP_ROOT"
+RUN mkdir -p "$HOME" && chown -R 1001:0 "$APP_ROOT" && chmod -R ug+rwx "$APP_ROOT"{% if spec.prod != "fedora" and spec.pkg_manager != "microdnf" %} && \
+    rpm-file-permissions{% endif %}
+
 WORKDIR "$HOME"
 USER 1001

@@ -28,12 +28,14 @@ run_node() {
     exec $NODE_CMD
   elif [ ! -n "$NODE_CMD" ] && [ "$INIT_WRAPPER" == true ]; then
 
-    package_json_start=$(sed -n 's/\s*"start"\s*:\s*"\(.*\)".*/\1/p' package.json)
-    package_json_main=$(sed -n 's/\s*"main"\s*:\s*"\(.*\)".*/\1/p' package.json)
+    if [ -f "package.json" ]; then
+      package_json_start=$(sed -n 's/\s*"start"\s*:\s*"\(.*\)".*/\1/p' package.json)
+      package_json_main=$(sed -n 's/\s*"main"\s*:\s*"\(.*\)".*/\1/p' package.json)
+    fi
 
     if [ -n "$package_json_start" ]; then
       start_command=$package_json_start
-    elif [ -n $package_json_main ]; then
+    elif [ -n "$package_json_main" ]; then
       start_command="node ."
     elif [ -f "server.js" ]; then
       start_command="node server.js"
@@ -47,7 +49,7 @@ run_node() {
     echo "Launching via npm..."
     exec npm run -d $NPM_RUN
   fi
-} 
+}
 
 #Set the debug port to 5858 by default.
 if [ -z "$DEBUG_PORT" ]; then

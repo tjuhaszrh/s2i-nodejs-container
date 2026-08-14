@@ -1,0 +1,322 @@
+version: 1
+
+specs:
+  distroinfo:
+    fedora43:
+      distros:
+        - fedora-43-x86_64
+      s2i_base: "{{ spec.fedora_base }}"
+      s2i_minimal_base: "quay.io/fedora/fedora-minimal:44"
+      fedora_minimal_base: "quay.io/fedora/fedora-minimal:44"
+      full_image_name: "quay.io/fedora/$NAME-$NODEJS_VERSION:latest"
+      org: "fedora"
+      prod: "fedora"
+      redhat_component: "${NAME}-${NODEJS_VERSION}-container"
+      img_name: "fedora/$NAME-$NODEJS_VERSION"
+      img_name_minimal: "fedora/$NAME-$NODEJS_VERSION-minimal"
+      pkg_manager: "dnf"
+      latest_fedora: "43"
+      needs_versioned_links: true
+      # Modern: Fedora uses versioned packages (nodejs$VERSION), not modules
+
+    rhel8:
+      distros:
+        - rhel-8-x86_64
+      s2i_base: ubi8/s2i-core
+      s2i_minimal_base: ubi8/s2i-core
+      org: "ubi8"
+      prod: "rhel8"
+      redhat_component: "${NAME}-${NODEJS_VERSION}-container"
+      img_name: "ubi8/$NAME-$NODEJS_VERSION"
+      img_name_minimal: "ubi8/$NAME-$NODEJS_VERSION-minimal"
+      pkg_manager: "dnf"
+      uses_yum_for_v20: true
+      needs_python3_link: true
+      uses_dnf_modules: true  # Legacy: RHEL8 uses deprecated DNF modules
+      environment_setup: >-
+        dnf -y module enable nodejs:$NODEJS_VERSION &&
+      post_install: >4-
+           (dnf -y reinstall tzdata || dnf -y update tzdata ) &&\
+    rhel9:
+      distros:
+        - rhel-9-x86_64
+      s2i_base: ubi9/s2i-core
+      s2i_minimal_base: ubi9/s2i-core
+      org: "ubi9"
+      prod: "rhel9"
+      redhat_component: "${NAME}-${NODEJS_VERSION}-container"
+      img_name: "ubi9/$NAME-$NODEJS_VERSION"
+      img_name_minimal: "ubi9/$NAME-$NODEJS_VERSION-minimal"
+      pkg_manager: "dnf"
+      uses_yum_for_v20: true
+      uses_dnf_modules: true  # Legacy: RHEL9 uses deprecated DNF modules
+      environment_setup: >-
+        dnf -y module enable nodejs:$NODEJS_VERSION &&
+      post_install: >4-
+           (dnf -y reinstall tzdata || dnf -y update tzdata ) &&\
+    rhel10:
+      distros:
+        - rhel-10-x86_64
+      s2i_base: ubi10/s2i-core
+      s2i_minimal_base: ubi10/s2i-core
+      org: "ubi10"
+      prod: "rhel10"
+      redhat_component: "${NAME}-${NODEJS_VERSION}-container"
+      img_name: "ubi10/$NAME-$NODEJS_VERSION"
+      img_name_minimal: "ubi10/$NAME-$NODEJS_VERSION-minimal"
+      pkg_manager: "dnf"
+      needs_versioned_links: true
+      # Modern: RHEL10 uses versioned packages (nodejs$VERSION), not modules
+    c9s:
+      distros:
+        - centos-stream-9-x86_64
+      s2i_base: quay.io/sclorg/s2i-core-c9s:c9s
+      s2i_minimal_base: quay.io/sclorg/s2i-core-c9s:c9s
+      org: "c9s"
+      prod: "c9s"
+      redhat_component: "${NAME}-${NODEJS_VERSION}-container"
+      img_name: "sclorg/$NAME-$NODEJS_VERSION-c9s"
+      img_name_minimal: "sclorg/$NAME-$NODEJS_VERSION-minimal-c9s"
+      pkg_manager: "dnf"
+      uses_yum_for_v20: true
+      uses_dnf_modules: true  # Legacy: CentOS Stream 9 uses deprecated DNF modules
+      environment_setup: >-
+        dnf -y module enable nodejs:$NODEJS_VERSION &&
+      post_install: >4-
+           (dnf -y reinstall tzdata || dnf -y update tzdata ) &&\
+
+    c10s:
+      distros:
+        - centos-stream-10-x86_64
+      s2i_base: quay.io/sclorg/s2i-core-c10s:c10s
+      s2i_minimal_base: quay.io/sclorg/s2i-core-c10s:c10s
+      org: "c10s"
+      prod: "c10s"
+      redhat_component: "${NAME}-${NODEJS_VERSION}-container"
+      img_name: "sclorg/$NAME-$NODEJS_VERSION-c10s"
+      img_name_minimal: "sclorg/$NAME-$NODEJS_VERSION-minimal-c10s"
+      pkg_manager: "dnf"
+      needs_versioned_links: true
+      # Modern: CentOS Stream 10 uses versioned packages (nodejs$VERSION), not modules
+      check_pkgs: "nodejs npm nodejs-nodemon nss_wrapper-libs which"
+
+  version:
+    "20":
+      version: "20"
+      short: "20"
+      common_image_name: "{{ spec.org }}/nodejs-{{ spec.short }}-{{ spec.prod }}"
+      rhel_image_name: "rhel8/nodejs-{{ spec.short }}"
+      latest_fedora: "f45"
+      c9s_base: "quay.io/sclorg/s2i-core-c9s:c9s"
+      rhel8_base: "ubi8/s2i-core:latest"
+      rhel9_base: "ubi9/s2i-core:latest"
+      fedora_base: "quay.io/fedora/s2i-core:44"
+      pkgs: >-
+        {% if spec.prod == 'fedora' -%}
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-npm nss_wrapper-libs which
+        {%- else -%}
+          nodejs npm nodejs-nodemon nss_wrapper-libs which
+        {%- endif %}
+      build_deps: >-
+        {% if spec.prod == 'fedora' -%}
+          make gcc gcc-c++ libatomic_ops git openssl-devel
+        {%- elif spec.prod in ['rhel8', 'rhel9', 'c9s'] -%}
+          make gcc gcc-c++ libatomic_ops git openssl-devel
+        {%- else -%}
+          make gcc gcc-c++ git openssl-devel
+        {%- endif %}
+
+    "22":
+      version: "22"
+      prev_version: "20"
+      short: "22"
+      prev_short: "20"
+      common_image_name: "{{ spec.org }}/nodejs-{{ spec.short }}-{{ spec.prod }}"
+      c9s_image_name: "sclorg/nodejs-{{ spec.short }}-c9s"
+      rhel_image_name: "rhel9/nodejs-{{ spec.short }}"
+      latest_fedora: "f45"
+      fedora_base: "quay.io/fedora/s2i-core:44"
+      pkgs: >-
+        {% if spec.prod == 'fedora' -%}
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-npm nss_wrapper-libs which
+        {%- elif spec.prod in ['rhel10', 'c10s'] -%}
+          nodejs nodejs-nodemon nodejs-npm nss_wrapper-libs which
+        {%- else -%}
+          nodejs npm nodejs-nodemon nss_wrapper-libs which
+        {%- endif %}
+      build_deps: >-
+        {% if spec.prod == 'rhel8' -%}
+          make gcc-toolset-13-gcc gcc-toolset-13-gcc-c++ gcc-toolset-13-runtime libatomic_ops git openssl-devel python3.12
+        {%- elif spec.prod == 'fedora' -%}
+          make gcc gcc-c++ libatomic_ops git openssl-devel
+        {%- elif spec.prod in ['rhel9', 'c9s'] -%}
+          make gcc gcc-c++ libatomic_ops git openssl-devel
+        {%- else -%}
+          make gcc gcc-c++ git openssl-devel
+        {%- endif %}
+
+    "24":
+      version: "24"
+      prev_version: "22"
+      short: "24"
+      prev_short: "22"
+      common_image_name: "{{ spec.org }}/nodejs-{{ spec.short }}-{{ spec.prod }}"
+      c9s_image_name: "sclorg/nodejs-{{ spec.short }}-c9s"
+      rhel_image_name: "rhel9/nodejs-{{ spec.short }}"
+      latest_fedora: "f45"
+      fedora_base: "quay.io/fedora/s2i-core:44"
+      pkgs: >-
+        {% if spec.prod in ['rhel10', 'c10s', 'fedora'] -%}
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-npm nss_wrapper-libs which
+        {%- else -%}
+          nodejs npm nodejs-nodemon nss_wrapper-libs which
+        {%- endif %}
+      build_deps: >-
+        {% if spec.prod == 'rhel8' -%}
+          make gcc-toolset-13-gcc gcc-toolset-13-gcc-c++ gcc-toolset-13-runtime libatomic_ops git openssl-devel python3.12
+        {%- elif spec.prod == 'fedora' -%}
+          make gcc gcc-c++ libatomic_ops git openssl-devel
+        {%- elif spec.prod in ['rhel9', 'c9s'] -%}
+          make gcc gcc-c++ libatomic_ops git openssl-devel
+        {%- else -%}
+          make gcc gcc-c++ git openssl-devel
+        {%- endif %}
+
+    "20-minimal":
+      version: "20"
+      short: "20-minimal"
+      common_image_name: "{{ spec.org }}/nodejs-{{ spec.short }}-{{ spec.prod }}"
+      rhel_image_name: "rhel8/nodejs-{{ spec.short }}"
+      latest_fedora: "f45"
+      fedora_minimal_base: "quay.io/fedora/fedora-minimal:44"
+      minimal_pkgs: >-
+        {% if spec.prod == 'fedora' -%}
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which nss_wrapper-libs
+        {%- else -%}
+          nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which nss_wrapper-libs
+        {%- endif %}
+      pkgs: >-
+        {% if spec.prod == 'fedora' -%}
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-npm nss_wrapper-libs which
+        {%- else -%}
+          nodejs npm nodejs-nodemon nss_wrapper-libs which
+        {%- endif %}
+      build_deps: >-
+        {% if spec.prod == 'fedora' -%}
+          make gcc gcc-c++ libatomic_ops git openssl-devel
+        {%- else -%}
+          make gcc gcc-c++ git openssl-devel
+        {%- endif %}
+
+    "22-minimal":
+      version: "22"
+      prev_version: "20"
+      short: "22-minimal"
+      prev_short: "20-minimal"
+      common_image_name: "{{ spec.org }}/nodejs-{{ spec.short }}-{{ spec.prod }}"
+      c9s_image_name: "sclorg/nodejs-{{ spec.short }}-c9s"
+      rhel_image_name: "rhel9/nodejs-{{ spec.short }}"
+      latest_fedora: "f45"
+      fedora_minimal_base: "quay.io/fedora/fedora-minimal:44"
+      minimal_pkgs: >-
+        {% if spec.prod == 'fedora' -%}
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which nss_wrapper-libs
+        {%- elif spec.prod in ['rhel10', 'c10s'] -%}
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which nss_wrapper-libs
+        {%- else -%}
+          nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which nss_wrapper-libs
+        {%- endif %}
+      pkgs: >-
+        {% if spec.prod == 'fedora' -%}
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-npm nss_wrapper-libs which
+        {%- elif spec.prod in ['rhel10', 'c10s'] -%}
+          nodejs nodejs-nodemon nodejs-npm nss_wrapper-libs which
+        {%- else -%}
+          nodejs npm nodejs-nodemon nss_wrapper-libs which
+        {%- endif %}
+      build_deps: >-
+        {% if spec.prod == 'fedora' -%}
+          make gcc gcc-c++ libatomic_ops git openssl-devel
+        {%- elif spec.prod in ['rhel8', 'rhel9', 'c9s'] -%}
+          make gcc gcc-c++ libatomic_ops git openssl-devel
+        {%- else -%}
+          make gcc gcc-c++ git openssl-devel
+        {%- endif %}
+
+    "24-minimal":
+      version: "24"
+      prev_version: "22"
+      short: "24-minimal"
+      prev_short: "22-minimal"
+      common_image_name: "{{ spec.org }}/nodejs-{{ spec.short }}-{{ spec.prod }}"
+      c9s_image_name: "sclorg/nodejs-{{ spec.short }}-c9s"
+      rhel_image_name: "rhel9/nodejs-{{ spec.short }}"
+      latest_fedora: "f45"
+      fedora_minimal_base: "quay.io/fedora/fedora-minimal:44"
+      minimal_pkgs: >-
+        {% if spec.prod in ['rhel10', 'c10s', 'fedora'] -%}
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which nss_wrapper-libs
+        {%- else -%}
+          nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which nss_wrapper-libs
+        {%- endif %}
+      pkgs: >-
+        {% if spec.prod in ['rhel10', 'c10s', 'fedora'] -%}
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-npm nss_wrapper-libs which
+        {%- else -%}
+          nodejs npm nodejs-nodemon nss_wrapper-libs which
+        {%- endif %}
+      build_deps: >-
+        {% if spec.prod == 'fedora' -%}
+          make gcc gcc-c++ libatomic_ops git openssl-devel
+        {%- elif spec.prod in ['rhel8', 'rhel9', 'c9s'] -%}
+          make gcc gcc-c++ libatomic_ops git openssl-devel
+        {%- else -%}
+          make gcc gcc-c++ git openssl-devel
+        {%- endif %}
+
+matrix:
+  include:
+    - version: "20"
+      distros:
+        - rhel-8-x86_64
+        - rhel-9-x86_64
+        - centos-stream-9-x86_64
+        - fedora-43-x86_64
+    - version: "22"
+      distros:
+        - rhel-8-x86_64
+        - rhel-9-x86_64
+        - rhel-10-x86_64
+        - centos-stream-9-x86_64
+        - centos-stream-10-x86_64
+        - fedora-43-x86_64
+    - version: "24"
+      distros:
+        - rhel-8-x86_64
+        - rhel-9-x86_64
+        - rhel-10-x86_64
+        - centos-stream-9-x86_64
+        - centos-stream-10-x86_64
+        - fedora-43-x86_64
+    - version: "20-minimal"
+      distros:
+        - rhel-8-x86_64
+        - rhel-9-x86_64
+        - centos-stream-9-x86_64
+        - fedora-43-x86_64
+    - version: "22-minimal"
+      distros:
+        - rhel-8-x86_64
+        - rhel-9-x86_64
+        - rhel-10-x86_64
+        - centos-stream-9-x86_64
+        - centos-stream-10-x86_64
+        - fedora-43-x86_64
+    - version: "24-minimal"
+      distros:
+        - rhel-8-x86_64
+        - rhel-9-x86_64
+        - rhel-10-x86_64
+        - centos-stream-9-x86_64
+        - centos-stream-10-x86_64
+        - fedora-43-x86_64

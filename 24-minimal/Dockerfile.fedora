@@ -1,4 +1,4 @@
-FROM quay.io/fedora/fedora-minimal:42
+FROM quay.io/fedora/fedora-minimal:44
 
 EXPOSE 8080
 
@@ -18,7 +18,6 @@ ENV APP_ROOT=/opt/app-root \
     NPM_RUN=start \
     PLATFORM="fedora" \
     NODEJS_VERSION=24 \
-    NPM_RUN=start \
     NAME=nodejs
 
 ENV SUMMARY="Minimal image for running Node.js $NODEJS_VERSION applications" \
@@ -42,23 +41,25 @@ LABEL summary="$SUMMARY" \
       com.redhat.dev-mode="DEV_MODE:false" \
       com.redhat.deployments-dir="${APP_ROOT}/src" \
       com.redhat.dev-mode.port="DEBUG_PORT:5858" \
-      com.redhat.component="${NAME}-${NODEJS_VERSION}-minimal-container" \
+      com.redhat.component="${NAME}-${NODEJS_VERSION}-container-minimal" \
       name="fedora/$NAME-$NODEJS_VERSION-minimal" \
       version="1" \
+      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>" \
       help="For more information visit https://github.com/sclorg/s2i-nodejs-container"
 
 # nodejs-full-i18n is included for error strings
-RUN INSTALL_PKGS="nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which" && \
+RUN INSTALL_PKGS="nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which nss_wrapper-libs" && \
     microdnf -y --nodocs --setopt=install_weak_deps=0 install $INSTALL_PKGS && \
-    microdnf clean all && \
-    ln -s /usr/bin/node-$NODEJS_VERSION /usr/bin/node && \
-    ln -s /usr/bin/npm-$NODEJS_VERSION /usr/bin/npm && \
-    ln -s /usr/bin/npx-$NODEJS_VERSION /usr/bin/npx && \
+\
+    rm -f /usr/bin/node && ln -s /usr/bin/node-$NODEJS_VERSION /usr/bin/node && \
+    rm -f /usr/bin/npm && ln -s /usr/bin/npm-$NODEJS_VERSION /usr/bin/npm && \
+    rm -f /usr/bin/npx && ln -s /usr/bin/npx-$NODEJS_VERSION /usr/bin/npx && \
+\
     node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" && \
+    microdnf clean all && \
     rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
 
-#
 COPY ./s2i/bin/ /usr/libexec/s2i
 RUN chmod +x /usr/libexec/s2i/init-wrapper
 
