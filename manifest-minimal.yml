@@ -1,0 +1,123 @@
+# Manifest for image directories creation (minimal variants)
+# every dest path will be prefixed by $DESTDIR/$version
+
+# Files containing distgen directives, which are used for each
+# (distro, version) combination not excluded in multispec
+DISTGEN_MULTI_RULES:
+  - src: src/Dockerfile.minimal
+    dest: Dockerfile.rhel8
+
+  - src: src/Dockerfile.minimal
+    dest: Dockerfile.rhel9
+
+  - src: src/Dockerfile.minimal
+    dest: Dockerfile.rhel10
+
+  - src: src/Dockerfile.minimal
+    dest: Dockerfile.c9s
+
+  - src: src/Dockerfile.minimal
+    dest: Dockerfile.c10s
+
+  - src: src/Dockerfile.minimal.fedora
+    dest: Dockerfile.fedora
+
+# Files to generate once per version
+DISTGEN_RULES:
+  - src: src/README.minimal.md
+    dest: README.md
+
+# Files to copy
+COPY_RULES:
+  - src: src/s2i/bin/assemble
+    dest: s2i/bin/assemble
+    mode: "0755"
+
+  - src: src/s2i/bin/run-minimal
+    dest: s2i/bin/run
+    mode: "0755"
+
+  - src: src/s2i/bin/save-artifacts
+    dest: s2i/bin/save-artifacts
+    mode: "0755"
+
+  - src: src/s2i/bin/usage
+    dest: s2i/bin/usage
+    mode: "0755"
+
+  - src: src/s2i/bin/init-wrapper
+    dest: s2i/bin/init-wrapper
+    mode: "0755"
+
+  - src: src/root/usr/bin/fix-permissions
+    dest: root/usr/bin/fix-permissions
+    mode: "0755"
+
+# Symbolic links
+SYMLINK_RULES:
+  - src: ../../test/__init__.py
+    dest: test/__init__.py
+
+  - src: ../../common/check_imagestreams.py
+    dest: test/check_imagestreams.py
+
+  - src: ../../test/conftest.py
+    dest: test/conftest.py
+
+  - src: ../../examples/
+    dest: test/examples
+
+  - src: ../../imagestreams/
+    dest: test/imagestreams
+
+  - src: ../../test/run-minimal
+    dest: test/run
+
+  - src: ../../test/run-openshift-remote-cluster
+    dest: test/run-openshift-remote-cluster
+    check_symlink: false
+
+  - src: ../../test/run-pytest
+    dest: test/run-pytest
+
+  - src: ../../test/test-app
+    dest: test/test-app
+
+  - src: ../../test/test-binary
+    dest: test/test-binary
+
+  - src: ../../test/test-express-webapp
+    dest: test/test-express-webapp
+
+  - src: ../../test/test-fips
+    dest: test/test-fips
+
+  - src: ../../test/test-hw
+    dest: test/test-hw
+
+  - src: ../../test/test-incremental
+    dest: test/test-incremental
+
+  - src: ../../test/test-lib-nodejs.sh
+    dest: test/test-lib-nodejs.sh
+
+  - src: ../../common/test-lib-openshift.sh
+    dest: test/test-lib-openshift.sh
+    check_symlink: false
+
+  - src: ../../common/test-lib-remote-openshift.sh
+    dest: test/test-lib-remote-openshift.sh
+    check_symlink: false
+
+  - src: ../../common/test-lib.sh
+    dest: test/test-lib.sh
+
+  - src: ../../common/test-openshift.yaml
+    dest: test/test-openshift.yaml
+    check_symlink: false
+
+  - src: ../../test/test_container_apps.py
+    dest: test/test_container_apps.py
+
+  - src: ../../test/test_container_basics.py
+    dest: test/test_container_basics.py
