@@ -1,0 +1,145 @@
+make[1]: Entering directory '/root/sclorg/s2i-nodejs-container'
+'22/README.md' -> '22/root/README.md'
+'22-minimal/README.md' -> '22-minimal/root/README.md'
+'24/README.md' -> '24/root/README.md'
+'24-minimal/README.md' -> '24-minimal/root/README.md'
+VERSION="22" SKIP_SQUASH=1 OS=rhel8 CLEAN_AFTER= DOCKER_BUILD_CONTEXT=. OPENSHIFT_NAMESPACES="" CUSTOM_REPO="" REGISTRY="""" /usr/bin/env bash common/build.sh
+Built versions are: 22
+-> Version 22: building image from 'Dockerfile.rhel8' ...
+-> Pulling image ubi8/s2i-core:latest before building image from Dockerfile.rhel8.
+Resolved "ubi8/s2i-core" as an alias (/etc/containers/registries.conf.d/001-rhel-shortnames.conf)
+Trying to pull registry.access.redhat.com/ubi8/s2i-core:latest...
+Getting image source signatures
+Checking if image destination supports signatures
+Copying blob sha256:e8c48aa352a78994571d309298dd0225c2c5353a1b6653ddb98fd371581091f3
+Copying blob sha256:0b7d2b46deb33fa136af133fa9e3aea84434477c0f08aeb011e8c252d650b620
+Copying config sha256:8cc438217c4dabd5b4885f26373ef28853aa77a37f18548e0f05e922f29600b5
+Writing manifest to image destination
+Storing signatures
+-> building using docker build  --label io.openshift.builder-version="8edc82c" -f Dockerfile.rhel8 .
+STEP 1/15: FROM ubi8/s2i-core:latest
+STEP 2/15: EXPOSE 8080
+--> 4403ea6fcefb
+STEP 3/15: ENV NODEJS_VERSION=22     NPM_RUN=start     NAME=nodejs     NPM_CONFIG_PREFIX=$HOME/.npm-global     PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:$PATH     CNB_STACK_ID=com.redhat.stacks.ubi8-nodejs-22     CNB_USER_ID=1001     CNB_GROUP_ID=0
+--> e3ca9f62b188
+STEP 4/15: ENV SUMMARY="Platform for building and running Node.js $NODEJS_VERSION applications"     DESCRIPTION="Node.js $NODEJS_VERSION available as container is a base platform for building and running various Node.js $NODEJS_VERSION applications and frameworks. Node.js is a platform built on Chrome's JavaScript runtime for easily building fast, scalable network applications. Node.js uses an event-driven, non-blocking I/O model that makes it lightweight and efficient, perfect for data-intensive real-time applications that run across distributed devices."
+--> ae9dd3fbe57d
+STEP 5/15: LABEL summary="$SUMMARY"       description="$DESCRIPTION"       io.k8s.description="$DESCRIPTION"       io.k8s.display-name="Node.js $NODEJS_VERSION"       io.openshift.expose-services="8080:http"       io.openshift.tags="builder,$NAME,${NAME}${NODEJS_VERSION}"       io.openshift.s2i.scripts-url="image:///usr/libexec/s2i"       io.s2i.scripts-url="image:///usr/libexec/s2i"       io.buildpacks.stack.id="com.redhat.stacks.ubi8-nodejs-22"       com.redhat.dev-mode="DEV_MODE:false"       com.redhat.deployments-dir="${APP_ROOT}/src"       com.redhat.dev-mode.port="DEBUG_PORT:5858"       com.redhat.component="${NAME}-${NODEJS_VERSION}-container"       name="ubi8/$NAME-$NODEJS_VERSION"       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"       maintainer="SoftwareCollections.org <sclorg@redhat.com>"       help="For more information visit https://github.com/sclorg/s2i-nodejs-container"       usage="s2i build <SOURCE-REPOSITORY> ubi8/$NAME-$NODEJS_VERSION <APP-NAME>"
+--> 077a0338a36a
+STEP 6/15: RUN     dnf -y module enable nodejs:$NODEJS_VERSION &&    MODULE_DEPS="make gcc-toolset-13-gcc gcc-toolset-13-gcc-c++ gcc-toolset-13-runtime libatomic_ops git openssl-devel python3.12" &&     INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper-libs which" && dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS &&     rpm -V $INSTALL_PKGS &&     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon &&     node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" &&      (dnf -y reinstall tzdata || dnf -y update tzdata ) &&
+/bin/sh: -c: line 1: syntax error: unexpected end of file
+Error: building at STEP "RUN dnf -y module enable nodejs:$NODEJS_VERSION &&    MODULE_DEPS="make gcc-toolset-13-gcc gcc-toolset-13-gcc-c++ gcc-toolset-13-runtime libatomic_ops git openssl-devel python3.12" &&     INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper-libs which" && dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS &&     rpm -V $INSTALL_PKGS &&     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon &&     node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" &&      (dnf -y reinstall tzdata || dnf -y update tzdata ) &&": while running runtime: exit status 1
+errexit on line 161, common/build.sh
++ echo 'Return code from docker build is '\''1'\''.'
+Return code from docker build is '1'.
+++ tail -n 1
++ last_row='Error: building at STEP "RUN dnf -y module enable nodejs:$NODEJS_VERSION &&    MODULE_DEPS="make gcc-toolset-13-gcc gcc-toolset-13-gcc-c++ gcc-toolset-13-runtime libatomic_ops git openssl-devel python3.12" &&     INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper-libs which" && dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS &&     rpm -V $INSTALL_PKGS &&     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon &&     node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" &&      (dnf -y reinstall tzdata || dnf -y update tzdata ) &&": while running runtime: exit status 1'
++ [[ 1 != \0 ]]
++ [[ rhel8 == \r\h\e\l\8 ]]
++ analyze_logs_by_logdetective /tmp/22-rhel8.MVdYFm
++ echo 'Analyse logs by logdetective, why it failed.'
+Analyse logs by logdetective, why it failed.
++ local log_file_name=/tmp/22-rhel8.MVdYFm
++ echo 'Sending failed log by fpaste command to paste bin.'
+Sending failed log by fpaste command to paste bin.
+++ fpaste /tmp/22-rhel8.MVdYFm
+Uploading (3.8KiB)...
++ paste_bin_link=https://paste.centos.org/view/bfb0ad78
++ [[ 0 -ne 0 ]]
++ raw_paste_bin_link=https://paste.centos.org/view/raw/bfb0ad78
++ echo 'Sending log file to logdetective server: https://paste.centos.org/view/raw/bfb0ad78'
+Sending log file to logdetective server: https://paste.centos.org/view/raw/bfb0ad78
++ echo '-------- LOGDETECTIVE TEST LOG ANALYSIS START --------'
+-------- LOGDETECTIVE TEST LOG ANALYSIS START --------
+++ mktemp /tmp/logdetective_test.XXXXXX
++ logdetective_test_file=/tmp/logdetective_test.53eMkN
++ curl -k --insecure --header 'Content-Type: application/json' --request POST --data '{"url":"https://paste.centos.org/view/raw/bfb0ad78"}' https://server-logdetective.apps.cyborg.fio9.p1.openshiftapps.com/analyze
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   330  100   278  100    52   2574    481 --:--:-- --:--:-- --:--:--  3055
++ jq -rC .explanation.text
+[1;30mnull[0m
++ '[' -z /var/tmp/tmt-test.pid ']'
++ '[' -d /var/ARTIFACTS/work-rhel8-dockergxfkgfnu/plans/rhel8-docker/execute/data/guest/default-0/OS-rhel8-repository-sclorg/s2i-nodejs-container-version-22-1/data ']'
++ cp -f /tmp/logdetective_test.53eMkN /var/ARTIFACTS/work-rhel8-dockergxfkgfnu/plans/rhel8-docker/execute/data/guest/default-0/OS-rhel8-repository-sclorg/s2i-nodejs-container-version-22-1/data
++ echo 'File '\''/tmp/logdetective_test.53eMkN'\'' stored to '\''/var/ARTIFACTS/work-rhel8-dockergxfkgfnu/plans/rhel8-docker/execute/data/guest/default-0/OS-rhel8-repository-sclorg/s2i-nodejs-container-version-22-1/data'\''.'
+File '/tmp/logdetective_test.53eMkN' stored to '/var/ARTIFACTS/work-rhel8-dockergxfkgfnu/plans/rhel8-docker/execute/data/guest/default-0/OS-rhel8-repository-sclorg/s2i-nodejs-container-version-22-1/data'.
++ echo '-------- LOGDETECTIVE TEST LOG ANALYSIS FINISHED --------'
+-------- LOGDETECTIVE TEST LOG ANALYSIS FINISHED --------
++ (( i++ ))
++ sleep 5
++ echo 'Retrying to build image for version 22, attempt 2 of 2.'
+Retrying to build image for version 22, attempt 2 of 2.
++ rm -f /tmp/22-rhel8.MVdYFm
++ '[' 2 -le 2 ']'
++ command='docker build  --label io.openshift.builder-version="8edc82c" -f Dockerfile.rhel8 .'
++ echo '-> building using docker build  --label io.openshift.builder-version="8edc82c" -f Dockerfile.rhel8 .'
+-> building using docker build  --label io.openshift.builder-version="8edc82c" -f Dockerfile.rhel8 .
++ set +x -o pipefail
+STEP 1/15: FROM ubi8/s2i-core:latest
+STEP 2/15: EXPOSE 8080
+--> Using cache 4403ea6fcefbd4e90fa0ae4fa5aa1e079d508fd1ce2b90c25bafdd4fe0ac6216
+--> 4403ea6fcefb
+STEP 3/15: ENV NODEJS_VERSION=22     NPM_RUN=start     NAME=nodejs     NPM_CONFIG_PREFIX=$HOME/.npm-global     PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:$PATH     CNB_STACK_ID=com.redhat.stacks.ubi8-nodejs-22     CNB_USER_ID=1001     CNB_GROUP_ID=0
+--> Using cache e3ca9f62b188aadd27b003a49f5415c48105b1d150e001422a1226ebb552d910
+--> e3ca9f62b188
+STEP 4/15: ENV SUMMARY="Platform for building and running Node.js $NODEJS_VERSION applications"     DESCRIPTION="Node.js $NODEJS_VERSION available as container is a base platform for building and running various Node.js $NODEJS_VERSION applications and frameworks. Node.js is a platform built on Chrome's JavaScript runtime for easily building fast, scalable network applications. Node.js uses an event-driven, non-blocking I/O model that makes it lightweight and efficient, perfect for data-intensive real-time applications that run across distributed devices."
+--> Using cache ae9dd3fbe57d7869a80917695f6149997030595a23f34f528b44cdb4fcad6a79
+--> ae9dd3fbe57d
+STEP 5/15: LABEL summary="$SUMMARY"       description="$DESCRIPTION"       io.k8s.description="$DESCRIPTION"       io.k8s.display-name="Node.js $NODEJS_VERSION"       io.openshift.expose-services="8080:http"       io.openshift.tags="builder,$NAME,${NAME}${NODEJS_VERSION}"       io.openshift.s2i.scripts-url="image:///usr/libexec/s2i"       io.s2i.scripts-url="image:///usr/libexec/s2i"       io.buildpacks.stack.id="com.redhat.stacks.ubi8-nodejs-22"       com.redhat.dev-mode="DEV_MODE:false"       com.redhat.deployments-dir="${APP_ROOT}/src"       com.redhat.dev-mode.port="DEBUG_PORT:5858"       com.redhat.component="${NAME}-${NODEJS_VERSION}-container"       name="ubi8/$NAME-$NODEJS_VERSION"       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"       maintainer="SoftwareCollections.org <sclorg@redhat.com>"       help="For more information visit https://github.com/sclorg/s2i-nodejs-container"       usage="s2i build <SOURCE-REPOSITORY> ubi8/$NAME-$NODEJS_VERSION <APP-NAME>"
+--> Using cache 077a0338a36a64792faee4cf583c50832381738afe32c78106ec6a82636e33e0
+--> 077a0338a36a
+STEP 6/15: RUN     dnf -y module enable nodejs:$NODEJS_VERSION &&    MODULE_DEPS="make gcc-toolset-13-gcc gcc-toolset-13-gcc-c++ gcc-toolset-13-runtime libatomic_ops git openssl-devel python3.12" &&     INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper-libs which" && dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS &&     rpm -V $INSTALL_PKGS &&     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon &&     node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" &&      (dnf -y reinstall tzdata || dnf -y update tzdata ) &&
+/bin/sh: -c: line 1: syntax error: unexpected end of file
+Error: building at STEP "RUN dnf -y module enable nodejs:$NODEJS_VERSION &&    MODULE_DEPS="make gcc-toolset-13-gcc gcc-toolset-13-gcc-c++ gcc-toolset-13-runtime libatomic_ops git openssl-devel python3.12" &&     INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper-libs which" && dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS &&     rpm -V $INSTALL_PKGS &&     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon &&     node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" &&      (dnf -y reinstall tzdata || dnf -y update tzdata ) &&": while running runtime: exit status 1
+errexit on line 161, common/build.sh
++ echo 'Return code from docker build is '\''1'\''.'
+Return code from docker build is '1'.
+++ tail -n 1
++ last_row='Error: building at STEP "RUN dnf -y module enable nodejs:$NODEJS_VERSION &&    MODULE_DEPS="make gcc-toolset-13-gcc gcc-toolset-13-gcc-c++ gcc-toolset-13-runtime libatomic_ops git openssl-devel python3.12" &&     INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper-libs which" && dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS &&     rpm -V $INSTALL_PKGS &&     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon &&     node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" &&      (dnf -y reinstall tzdata || dnf -y update tzdata ) &&": while running runtime: exit status 1'
++ [[ 1 != \0 ]]
++ [[ rhel8 == \r\h\e\l\8 ]]
++ analyze_logs_by_logdetective /tmp/22-rhel8.32n1sZ
++ echo 'Analyse logs by logdetective, why it failed.'
+Analyse logs by logdetective, why it failed.
++ local log_file_name=/tmp/22-rhel8.32n1sZ
++ echo 'Sending failed log by fpaste command to paste bin.'
+Sending failed log by fpaste command to paste bin.
+++ fpaste /tmp/22-rhel8.32n1sZ
+Uploading (4.2KiB)...
++ paste_bin_link=https://paste.centos.org/view/eee36615
++ [[ 0 -ne 0 ]]
++ raw_paste_bin_link=https://paste.centos.org/view/raw/eee36615
++ echo 'Sending log file to logdetective server: https://paste.centos.org/view/raw/eee36615'
+Sending log file to logdetective server: https://paste.centos.org/view/raw/eee36615
++ echo '-------- LOGDETECTIVE TEST LOG ANALYSIS START --------'
+-------- LOGDETECTIVE TEST LOG ANALYSIS START --------
+++ mktemp /tmp/logdetective_test.XXXXXX
++ logdetective_test_file=/tmp/logdetective_test.AI7iWV
++ curl -k --insecure --header 'Content-Type: application/json' --request POST --data '{"url":"https://paste.centos.org/view/raw/eee36615"}' https://server-logdetective.apps.cyborg.fio9.p1.openshiftapps.com/analyze
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   330  100   278  100    52   1257    235 --:--:-- --:--:-- --:--:--  1493
++ jq -rC .explanation.text
+[1;30mnull[0m
++ '[' -z /var/tmp/tmt-test.pid ']'
++ '[' -d /var/ARTIFACTS/work-rhel8-dockergxfkgfnu/plans/rhel8-docker/execute/data/guest/default-0/OS-rhel8-repository-sclorg/s2i-nodejs-container-version-22-1/data ']'
++ cp -f /tmp/logdetective_test.AI7iWV /var/ARTIFACTS/work-rhel8-dockergxfkgfnu/plans/rhel8-docker/execute/data/guest/default-0/OS-rhel8-repository-sclorg/s2i-nodejs-container-version-22-1/data
++ echo 'File '\''/tmp/logdetective_test.AI7iWV'\'' stored to '\''/var/ARTIFACTS/work-rhel8-dockergxfkgfnu/plans/rhel8-docker/execute/data/guest/default-0/OS-rhel8-repository-sclorg/s2i-nodejs-container-version-22-1/data'\''.'
+File '/tmp/logdetective_test.AI7iWV' stored to '/var/ARTIFACTS/work-rhel8-dockergxfkgfnu/plans/rhel8-docker/execute/data/guest/default-0/OS-rhel8-repository-sclorg/s2i-nodejs-container-version-22-1/data'.
++ echo '-------- LOGDETECTIVE TEST LOG ANALYSIS FINISHED --------'
+-------- LOGDETECTIVE TEST LOG ANALYSIS FINISHED --------
++ (( i++ ))
++ sleep 5
++ echo 'Retrying to build image for version 22, attempt 3 of 2.'
+Retrying to build image for version 22, attempt 3 of 2.
++ rm -f /tmp/22-rhel8.32n1sZ
++ '[' 3 -le 2 ']'
++ [[ 1 -ne 0 ]]
++ echo '-> Build failed for version 22 and OS rhel8 after 2 attempts, giving up.'
+-> Build failed for version 22 and OS rhel8 after 2 attempts, giving up.
++ exit 1
+make[1]: *** [common/common.mk:93: 22] Error 1
+make[1]: Leaving directory '/root/sclorg/s2i-nodejs-container'
+make: *** [common/common.mk:82: build-serial] Error 2
+Shared connection to 10.30.85.100 closed.
