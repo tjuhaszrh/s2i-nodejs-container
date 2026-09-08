@@ -46,11 +46,8 @@ LABEL summary="$SUMMARY" \
       help="For more information visit https://github.com/sclorg/s2i-nodejs-container" \
       usage="s2i build <SOURCE-REPOSITORY> ubi10/$NAME-$NODEJS_VERSION <APP-NAME>"
 
-RUN \
-    # Modern distros (Fedora, RHEL10+, CentOS Stream 10+): use versioned packages
+RUN INSTALL_PKGS="make gcc gcc-c++ git openssl-devel nodejs nodejs-nodemon nodejs-npm nss_wrapper-libs which" && \
 \
-    MODULE_DEPS="make gcc gcc-c++ git openssl-devel" && \
-    INSTALL_PKGS="$MODULE_DEPS nodejs nodejs-nodemon nodejs-npm nss_wrapper-libs which" && \
 dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
 \

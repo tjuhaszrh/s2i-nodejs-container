@@ -120,8 +120,10 @@ specs:
       build_deps: >-
         {% if spec.prod == 'fedora' -%}
           make gcc gcc-c++ libatomic_ops git openssl-devel
-        {%- elif spec.prod in ['rhel8', 'rhel9', 'c9s'] -%}
+        {%- elif spec.prod == 'rhel8' -%}
           make gcc gcc-c++ libatomic_ops git openssl-devel
+        {%- elif spec.prod in ['rhel9', 'c9s'] -%}
+          make gcc gcc-c++ git openssl-devel
         {%- else -%}
           make gcc gcc-c++ git openssl-devel
         {%- endif %}
@@ -150,7 +152,7 @@ specs:
         {%- elif spec.prod == 'fedora' -%}
           make gcc gcc-c++ libatomic_ops git openssl-devel
         {%- elif spec.prod in ['rhel9', 'c9s'] -%}
-          make gcc gcc-c++ libatomic_ops git openssl-devel
+          make gcc gcc-c++ git openssl-devel
         {%- else -%}
           make gcc gcc-c++ git openssl-devel
         {%- endif %}
@@ -177,7 +179,7 @@ specs:
         {%- elif spec.prod == 'fedora' -%}
           make gcc gcc-c++ libatomic_ops git openssl-devel
         {%- elif spec.prod in ['rhel9', 'c9s'] -%}
-          make gcc gcc-c++ libatomic_ops git openssl-devel
+          make gcc gcc-c++ git openssl-devel
         {%- else -%}
           make gcc gcc-c++ git openssl-devel
         {%- endif %}

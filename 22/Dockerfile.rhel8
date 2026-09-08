@@ -46,17 +46,15 @@ LABEL summary="$SUMMARY" \
       help="For more information visit https://github.com/sclorg/s2i-nodejs-container" \
       usage="s2i build <SOURCE-REPOSITORY> ubi8/$NAME-$NODEJS_VERSION <APP-NAME>"
 
-RUN \
-    # Legacy RHEL8/9 and CentOS Stream 9: use deprecated DNF modules
-    dnf -y module enable nodejs:$NODEJS_VERSION &&\
-\
+RUN dnf -y module enable nodejs:$NODEJS_VERSION && \
     MODULE_DEPS="make gcc-toolset-13-gcc gcc-toolset-13-gcc-c++ gcc-toolset-13-runtime libatomic_ops git openssl-devel python3.12" && \
     INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper-libs which" && \
-dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
 \
     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
 \
+\
+dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
 \
     node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" && \
      (dnf -y reinstall tzdata || dnf -y update tzdata ) &&\
