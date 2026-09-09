@@ -14,7 +14,6 @@ specs:
       redhat_component: "${NAME}-${NODEJS_VERSION}-container"
       img_name: "fedora/$NAME-$NODEJS_VERSION"
       img_name_minimal: "fedora/$NAME-$NODEJS_VERSION-minimal"
-      pkg_manager: "dnf"
       latest_fedora: "43"
       needs_versioned_links: true
       # Modern: Fedora uses versioned packages (nodejs$VERSION), not modules
@@ -23,65 +22,58 @@ specs:
       distros:
         - rhel-8-x86_64
       s2i_base: ubi8/s2i-core
-      s2i_minimal_base: ubi8/s2i-core
+      s2i_minimal_base: ubi8/ubi-minimal
       org: "ubi8"
       prod: "rhel8"
       redhat_component: "${NAME}-${NODEJS_VERSION}-container"
       img_name: "ubi8/$NAME-$NODEJS_VERSION"
       img_name_minimal: "ubi8/$NAME-$NODEJS_VERSION-minimal"
-      pkg_manager: "dnf"
       uses_yum_for_v20: true
       needs_python3_link: true
       uses_dnf_modules: true  # Legacy: RHEL8 uses deprecated DNF modules
-      environment_setup: >-
-        dnf -y module enable nodejs:$NODEJS_VERSION &&
+      environment_setup: "dnf -y module enable nodejs:$NODEJS_VERSION && \\"
       post_install: >4-
            (dnf -y reinstall tzdata || dnf -y update tzdata ) &&\
     rhel9:
       distros:
         - rhel-9-x86_64
       s2i_base: ubi9/s2i-core
-      s2i_minimal_base: ubi9/s2i-core
+      s2i_minimal_base: ubi9/ubi-minimal
       org: "ubi9"
       prod: "rhel9"
       redhat_component: "${NAME}-${NODEJS_VERSION}-container"
       img_name: "ubi9/$NAME-$NODEJS_VERSION"
       img_name_minimal: "ubi9/$NAME-$NODEJS_VERSION-minimal"
-      pkg_manager: "dnf"
       uses_yum_for_v20: true
       uses_dnf_modules: true  # Legacy: RHEL9 uses deprecated DNF modules
-      environment_setup: >-
-        dnf -y module enable nodejs:$NODEJS_VERSION &&
+      environment_setup: "dnf -y module enable nodejs:$NODEJS_VERSION && \\"
       post_install: >4-
            (dnf -y reinstall tzdata || dnf -y update tzdata ) &&\
     rhel10:
       distros:
         - rhel-10-x86_64
       s2i_base: ubi10/s2i-core
-      s2i_minimal_base: ubi10/s2i-core
+      s2i_minimal_base: ubi10/ubi-minimal
       org: "ubi10"
       prod: "rhel10"
       redhat_component: "${NAME}-${NODEJS_VERSION}-container"
       img_name: "ubi10/$NAME-$NODEJS_VERSION"
       img_name_minimal: "ubi10/$NAME-$NODEJS_VERSION-minimal"
-      pkg_manager: "dnf"
       needs_versioned_links: true
       # Modern: RHEL10 uses versioned packages (nodejs$VERSION), not modules
     c9s:
       distros:
         - centos-stream-9-x86_64
       s2i_base: quay.io/sclorg/s2i-core-c9s:c9s
-      s2i_minimal_base: quay.io/sclorg/s2i-core-c9s:c9s
+      s2i_minimal_base: quay.io/centos/centos:stream9-minimal
       org: "c9s"
       prod: "c9s"
       redhat_component: "${NAME}-${NODEJS_VERSION}-container"
       img_name: "sclorg/$NAME-$NODEJS_VERSION-c9s"
       img_name_minimal: "sclorg/$NAME-$NODEJS_VERSION-minimal-c9s"
-      pkg_manager: "dnf"
       uses_yum_for_v20: true
       uses_dnf_modules: true  # Legacy: CentOS Stream 9 uses deprecated DNF modules
-      environment_setup: >-
-        dnf -y module enable nodejs:$NODEJS_VERSION &&
+      environment_setup: "dnf -y module enable nodejs:$NODEJS_VERSION && \\"
       post_install: >4-
            (dnf -y reinstall tzdata || dnf -y update tzdata ) &&\
 
@@ -89,13 +81,12 @@ specs:
       distros:
         - centos-stream-10-x86_64
       s2i_base: quay.io/sclorg/s2i-core-c10s:c10s
-      s2i_minimal_base: quay.io/sclorg/s2i-core-c10s:c10s
+      s2i_minimal_base: quay.io/centos/centos:stream10-minimal
       org: "c10s"
       prod: "c10s"
       redhat_component: "${NAME}-${NODEJS_VERSION}-container"
       img_name: "sclorg/$NAME-$NODEJS_VERSION-c10s"
       img_name_minimal: "sclorg/$NAME-$NODEJS_VERSION-minimal-c10s"
-      pkg_manager: "dnf"
       needs_versioned_links: true
       # Modern: CentOS Stream 10 uses versioned packages (nodejs$VERSION), not modules
       check_pkgs: "nodejs npm nodejs-nodemon nss_wrapper-libs which"
@@ -111,6 +102,7 @@ specs:
       rhel8_base: "ubi8/s2i-core:latest"
       rhel9_base: "ubi9/s2i-core:latest"
       fedora_base: "quay.io/fedora/s2i-core:44"
+      pkg_manager: "dnf"
       pkgs: >-
         {% if spec.prod == 'fedora' -%}
           nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-npm nss_wrapper-libs which
@@ -138,6 +130,7 @@ specs:
       rhel_image_name: "rhel9/nodejs-{{ spec.short }}"
       latest_fedora: "f45"
       fedora_base: "quay.io/fedora/s2i-core:44"
+      pkg_manager: "dnf"
       pkgs: >-
         {% if spec.prod == 'fedora' -%}
           nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-npm nss_wrapper-libs which
@@ -167,6 +160,7 @@ specs:
       rhel_image_name: "rhel9/nodejs-{{ spec.short }}"
       latest_fedora: "f45"
       fedora_base: "quay.io/fedora/s2i-core:44"
+      pkg_manager: "dnf"
       pkgs: >-
         {% if spec.prod in ['rhel10', 'c10s', 'fedora'] -%}
           nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-npm nss_wrapper-libs which
@@ -191,11 +185,12 @@ specs:
       rhel_image_name: "rhel8/nodejs-{{ spec.short }}"
       latest_fedora: "f45"
       fedora_minimal_base: "quay.io/fedora/fedora-minimal:44"
+      pkg_manager: "microdnf"
       minimal_pkgs: >-
         {% if spec.prod == 'fedora' -%}
-          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which nss_wrapper-libs
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which
         {%- else -%}
-          nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which nss_wrapper-libs
+          nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which
         {%- endif %}
       pkgs: >-
         {% if spec.prod == 'fedora' -%}
@@ -220,13 +215,14 @@ specs:
       rhel_image_name: "rhel9/nodejs-{{ spec.short }}"
       latest_fedora: "f45"
       fedora_minimal_base: "quay.io/fedora/fedora-minimal:44"
+      pkg_manager: "microdnf"
       minimal_pkgs: >-
         {% if spec.prod == 'fedora' -%}
-          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which nss_wrapper-libs
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which
         {%- elif spec.prod in ['rhel10', 'c10s'] -%}
-          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which nss_wrapper-libs
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which
         {%- else -%}
-          nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which nss_wrapper-libs
+          nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which
         {%- endif %}
       pkgs: >-
         {% if spec.prod == 'fedora' -%}
@@ -255,11 +251,12 @@ specs:
       rhel_image_name: "rhel9/nodejs-{{ spec.short }}"
       latest_fedora: "f45"
       fedora_minimal_base: "quay.io/fedora/fedora-minimal:44"
+      pkg_manager: "microdnf"
       minimal_pkgs: >-
         {% if spec.prod in ['rhel10', 'c10s', 'fedora'] -%}
-          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which nss_wrapper-libs
+          nodejs$NODEJS_VERSION nodejs-nodemon nodejs$NODEJS_VERSION-full-i18n nodejs$NODEJS_VERSION-npm findutils tar which
         {%- else -%}
-          nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which nss_wrapper-libs
+          nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which
         {%- endif %}
       pkgs: >-
         {% if spec.prod in ['rhel10', 'c10s', 'fedora'] -%}

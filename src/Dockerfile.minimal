@@ -50,22 +50,14 @@ LABEL summary="$SUMMARY" \
 
 # nodejs-full-i18n is included for error strings
 RUN INSTALL_PKGS="{{ spec.minimal_pkgs }}" && \
-{% if spec.uses_dnf_modules %}\
-    # Legacy RHEL8/9 and CentOS Stream 9: use deprecated DNF modules
-    {% if spec.pkg_manager | default("dnf") == "microdnf" %}microdnf{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} -y module disable nodejs && \
+{% if spec.uses_dnf_modules %}{% if spec.pkg_manager | default("dnf") == "microdnf" %}microdnf{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} -y module disable nodejs && \
     {% if spec.pkg_manager | default("dnf") == "microdnf" %}microdnf{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} -y module enable nodejs:$NODEJS_VERSION && \
-{% else %}\
-    # Modern distros (Fedora, RHEL10+, CentOS Stream 10+): use versioned packages
-{% endif %}\
-    {% if spec.pkg_manager | default("dnf") == "microdnf" %}microdnf{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} -y --nodocs {% if spec.pkg_manager | default("dnf") == "microdnf" %}--setopt=install_weak_deps=0{% else %}--setopt=tsflags=nodocs{% endif %} install $INSTALL_PKGS && \
-{% if spec.needs_versioned_links %}\
-    rm -f /usr/bin/node && ln -s /usr/bin/node-$NODEJS_VERSION /usr/bin/node && \
+{% endif %}{% if spec.pkg_manager | default("dnf") == "microdnf" %}microdnf{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} -y --nodocs {% if spec.pkg_manager | default("dnf") == "microdnf" %}--setopt=install_weak_deps=0{% else %}--setopt=tsflags=nodocs{% endif %} install $INSTALL_PKGS && \
+{% if spec.needs_versioned_links %}    rm -f /usr/bin/node && ln -s /usr/bin/node-$NODEJS_VERSION /usr/bin/node && \
     rm -f /usr/bin/npm && ln -s /usr/bin/npm-$NODEJS_VERSION /usr/bin/npm && \
     rm -f /usr/bin/npx && ln -s /usr/bin/npx-$NODEJS_VERSION /usr/bin/npx && \
-{% endif %}\
-    node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" && \
-{% if spec.post_install %}    {{ spec.post_install }}
-{% endif %}    {% if spec.pkg_manager | default("dnf") == "microdnf" %}microdnf{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} clean all{% if spec.pkg_manager | default("dnf") != "microdnf" %} --enablerepo='*'{% endif %}{% if spec.pkg_manager | default("dnf") == "microdnf" %} && \
+{% endif %}    node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" && \
+    {% if spec.pkg_manager | default("dnf") == "microdnf" %}microdnf{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} clean all{% if spec.pkg_manager | default("dnf") != "microdnf" %} --enablerepo='*'{% endif %}{% if spec.pkg_manager | default("dnf") == "microdnf" %} && \
     rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*{% endif %}
 
 COPY ./s2i/bin/ /usr/libexec/s2i

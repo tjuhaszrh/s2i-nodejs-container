@@ -1,4 +1,4 @@
-FROM ubi8/s2i-core:latest
+FROM ubi8/ubi-minimal:latest
 EXPOSE 8080
 
 # Add $HOME/node_modules/.bin to the $PATH, allowing user to make npm scripts
@@ -48,17 +48,13 @@ LABEL summary="$SUMMARY" \
       help="For more information visit https://github.com/sclorg/s2i-nodejs-container"
 
 # nodejs-full-i18n is included for error strings
-RUN INSTALL_PKGS="nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which nss_wrapper-libs" && \
-\
-    # Legacy RHEL8/9 and CentOS Stream 9: use deprecated DNF modules
-dnf -y module disable nodejs && \
-dnf -y module enable nodejs:$NODEJS_VERSION && \
-\
-dnf -y --nodocs --setopt=tsflags=nodocs install $INSTALL_PKGS && \
-\
+RUN INSTALL_PKGS="nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which" && \
+microdnf -y module disable nodejs && \
+microdnf -y module enable nodejs:$NODEJS_VERSION && \
+microdnf -y --nodocs --setopt=install_weak_deps=0 install $INSTALL_PKGS && \
     node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" && \
-     (dnf -y reinstall tzdata || dnf -y update tzdata ) &&\
-    dnf clean all --enablerepo='*'
+microdnf clean all && \
+    rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
 COPY ./s2i/bin/ /usr/libexec/s2i
 RUN chmod +x /usr/libexec/s2i/init-wrapper
 
@@ -66,7 +62,6 @@ RUN chmod +x /usr/libexec/s2i/init-wrapper
 COPY ./root/ /
 
 # Drop the root user and make the content of /opt/app-root owned by user 1001
-RUN mkdir -p "$HOME" && chown -R 1001:0 "$APP_ROOT" && chmod -R ug+rwx "$APP_ROOT" && \
-    rpm-file-permissions
+RUN mkdir -p "$HOME" && chown -R 1001:0 "$APP_ROOT" && chmod -R ug+rwx "$APP_ROOT"
 WORKDIR "$HOME"
 USER 1001
