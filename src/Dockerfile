@@ -48,26 +48,19 @@ LABEL summary="$SUMMARY" \
       usage="s2i build <SOURCE-REPOSITORY> {{ spec.full_image_name | default(spec.img_name) }} <APP-NAME>"
 
 RUN {% if spec.uses_dnf_modules %}{{ spec.environment_setup }}
-    MODULE_DEPS="{{ spec.build_deps }}" && \
-    INSTALL_PKGS="$MODULE_DEPS {{ spec.pkgs }}" && \
+	MODULE_DEPS="{{ spec.build_deps }}" && \
+	INSTALL_PKGS="$MODULE_DEPS {{ spec.pkgs }}" && \
 {% else %}INSTALL_PKGS="{{ spec.build_deps }} {{ spec.pkgs }}" && \
-{% endif %}
-{% if not spec.needs_versioned_links %}\
-    ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
-{% if spec.needs_python3_link and spec.version == "20" %}\
-    ln -s /usr/libexec/platform-python /usr/bin/python3 && \
-{% endif %}\
-{% endif %}\
-    {% if spec.uses_yum_for_v20 and spec.version == "20" %}yum{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
-{% if spec.needs_versioned_links %}\
-    rm -f /usr/bin/node && ln -s /usr/bin/node-$NODEJS_VERSION /usr/bin/node && \
-    rm -f /usr/bin/npm && ln -s /usr/bin/npm-$NODEJS_VERSION /usr/bin/npm && \
-    rm -f /usr/bin/npx && ln -s /usr/bin/npx-$NODEJS_VERSION /usr/bin/npx && \
-{% endif %}\
-    node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" && \
-{% if spec.post_install %}    {{ spec.post_install }}
-{% endif %}    {% if spec.uses_yum_for_v20 and spec.version == "20" %}yum{% else %}{{ spec.pkg_manager | default("dnf") }}{% endif %} -y clean all --enablerepo='*'
+{% endif %}{% if not spec.needs_versioned_links %}	ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
+{% if spec.needs_python3_link and spec.version == "20" %}	ln -s /usr/libexec/platform-python /usr/bin/python3 && \
+{% endif %}{% endif %}{% if spec.uses_yum_for_v20 and spec.version == "20" %}	yum{% else %}	{{ spec.pkg_manager | default("dnf") }}{% endif %} install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+	rpm -V $INSTALL_PKGS && \
+{% if spec.needs_versioned_links %}	rm -f /usr/bin/node && ln -s /usr/bin/node-$NODEJS_VERSION /usr/bin/node && \
+	rm -f /usr/bin/npm && ln -s /usr/bin/npm-$NODEJS_VERSION /usr/bin/npm && \
+	rm -f /usr/bin/npx && ln -s /usr/bin/npx-$NODEJS_VERSION /usr/bin/npx && \
+{% endif %}	node -v | grep -qe "^v$NODEJS_VERSION\." && echo "Found VERSION $NODEJS_VERSION" && \
+{% if spec.post_install %}	{{ spec.post_install }}
+{% endif %}{% if spec.uses_yum_for_v20 and spec.version == "20" %}	yum{% else %}	{{ spec.pkg_manager | default("dnf") }}{% endif %} -y clean all --enablerepo='*'
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
